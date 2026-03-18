@@ -15,5 +15,7 @@ Each Entry has
 Your function must return a `ReconciliationReport` identifying:
 
 - `Missing Externally`: Transactions in your ledger but not in the external statement.
+  - List of Missing IDs (that are in my ledger and not in the external)
 - `Missing Internally`: Transactions in the external statement but not in your ledger.
+  - List of Missing IDs (that are in external but not in my ledger)
 - `Amount Mismatches`: Transactions where the ID exists in both, but the amounts do not match.
