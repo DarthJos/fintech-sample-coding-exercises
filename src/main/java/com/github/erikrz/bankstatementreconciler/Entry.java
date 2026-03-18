@@ -1,22 +1,23 @@
 package com.github.erikrz.bankstatementreconciler;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class Entry {
-    private String transactionId;
+    private UUID transactionID;
     private BigDecimal amount;
 
-    public Entry(String transactionId, BigDecimal amount) {
-        this.transactionId = transactionId;
+    public Entry(UUID transactionID, BigDecimal amount) {
+        this.transactionID = transactionID;
         this.amount = amount;
     }
 
-    public String getTransactionId() {
-        return transactionId;
+    public UUID getTransactionID() {
+        return transactionID;
     }
 
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
+    public void setTransactionID(UUID transactionID) {
+        this.transactionID = transactionID;
     }
 
     public BigDecimal getAmount() {

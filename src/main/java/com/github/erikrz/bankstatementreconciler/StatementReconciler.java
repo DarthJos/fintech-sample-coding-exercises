@@ -1,84 +1,68 @@
 package com.github.erikrz.bankstatementreconciler;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class StatementReconciler {
-    public static void main(String[] args) {
 
-    }
+    public static String getReconciliationReport (List<Entry> internalLedger, List<Entry> externalStatement) {
+        // Create hashmaps of each lists
+        HashMap<UUID, BigDecimal> internalTransactions = new HashMap<>();
+        HashMap<UUID, BigDecimal> externalTransactions = new HashMap<>();
 
-    public static String getReconciliationReport(List<Entry> internalLedger, List<Entry> externalStatement) {
-        String reconciliationReport = "";
-        List<String> missingExternallyIDs_List = getMissingExternallyIDs(internalLedger, externalStatement);
-        List<String> missingInternallyIDs_List = getMissingInternallyIDs(internalLedger, externalStatement);
-        List<String> mismatches = getMistmatchesIDs(internalLedger, externalStatement);
+        //Create lists for the report
+        ArrayList<String> missingExternally = new ArrayList<>();
+        ArrayList<String> missingInternally = new ArrayList<>();
+        ArrayList<String> amountMismatches = new ArrayList<>();
 
-        reconciliationReport += "== Missing Externally IDs ==\n";
-        for(String externallyId : missingExternallyIDs_List) reconciliationReport+=externallyId+"\n";
-        reconciliationReport += "== Missing Internally IDs ==\n";
-        for(String internallyId : missingInternallyIDs_List) reconciliationReport+=internallyId+"\n";
-        reconciliationReport += "== Amount Mismatches IDs ==\n";
-        for(String mismatchId : mismatches) reconciliationReport+= mismatchId +"\n";
+        // As the reports are from the same range of time, lets suppose
+        // both List are of same size. If not, send and alert, exception, etc
+        if (internalLedger.isEmpty() && externalStatement.isEmpty()) return "WARNING: The reports are empty...";
+        if (internalLedger.size() != externalStatement.size()) return "WARNING: Reports have different amount of transactions...";
 
-        return reconciliationReport;
-    }
+        // Initialize maps
+        for (int i = 0; i < internalLedger.size(); i++) {
 
-    public static List<String> getMissingExternallyIDs(List<Entry> internalLedger, List<Entry> externalStatement){
-        List<String> missingExternallyIDs = new ArrayList<>();
+            // Fill internalMap
+            UUID internal_txID = internalLedger.get(i).getTransactionID();
+            BigDecimal internal_txAmount = internalLedger.get(i).getAmount();
+            internalTransactions.put(internal_txID, internal_txAmount);
 
-        for(Entry internalEntry:internalLedger) {
-            String id = internalEntry.getTransactionId();
-
-            boolean shouldAdd = true;
-            for(Entry externalEntry:externalStatement){
-                if (id.equals(externalEntry.getTransactionId())){
-                    shouldAdd = false;
-                    break;
-                }
-            }
-
-            if (shouldAdd) missingExternallyIDs.add(id);
+            // Fill externalMap
+            UUID external_txID = externalStatement.get(i).getTransactionID();
+            BigDecimal external_txAmount = externalStatement.get(i).getAmount();
+            externalTransactions.put(external_txID, external_txAmount);
         }
 
-        return missingExternallyIDs;
-    }
+        // As both maps are from the same size, we can iterate over both at the same time
+        for (int i = 0; i < internalLedger.size(); i++) {
 
-    public static List<String> getMissingInternallyIDs(List<Entry> internalLedger, List<Entry> externalStatement){
-        List<String> missingInternallyIDs = new ArrayList<>();
-
-        for(Entry externalEntry:externalStatement) {
-            String id = externalEntry.getTransactionId();
-
-            boolean shouldAdd = true;
-            for(Entry internalEntry:internalLedger){
-                if (id.equals(internalEntry.getTransactionId())){
-                    shouldAdd = false;
-                    break;
-                }
+            // Check if internal tx is in external, if not, add to a list of missingExternally
+            UUID internal_txID = internalLedger.get(i).getTransactionID();
+            if (!externalTransactions.containsKey(internal_txID)){
+                missingExternally.add(String.valueOf(internal_txID));
             }
 
-            if (shouldAdd) missingInternallyIDs.add(id);
-        }
+            // Check if external tx is in internal, if not, add to a list of missingInternally
+            UUID external_txID = externalStatement.get(i).getTransactionID();
+            if (!internalTransactions.containsKey(external_txID)){
+                missingInternally.add(String.valueOf(external_txID));
+            }
 
-        return missingInternallyIDs;
-    }
-
-    public static List<String> getMistmatchesIDs(List<Entry> internalLedger, List<Entry> externalStatement){
-        List<String> mistmatchesIDs = new ArrayList<>();
-
-        for(Entry externalEntry:externalStatement) {
-            String externalId = externalEntry.getTransactionId();
-            BigDecimal externalAmount = externalEntry.getAmount();
-
-            for(Entry internalEntry: internalLedger){
-                if (externalId.equals(internalEntry.getTransactionId()) && externalAmount != internalEntry.getAmount()){
-                    mistmatchesIDs.add(externalId);
+            // Check if amounts of internal and external match, if not, add to list of amountMismatches
+            else {
+                if (!internalTransactions.get(external_txID).equals(externalTransactions.get(external_txID))) {
+                    amountMismatches.add(String.valueOf(external_txID));
                 }
             }
         }
 
-        return mistmatchesIDs;
+        return
+                " == Missing Externally ==" +
+                missingExternally + "\n" +
+                " == Missing Internally ==" +
+                missingInternally + "\n" +
+                " == Amount Mismatches ==" +
+                amountMismatches;
     }
 }
