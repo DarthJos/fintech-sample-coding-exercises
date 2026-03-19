@@ -4,7 +4,7 @@ A bank wants to detect potentially fraudulent transactions based on unusual user
 
 ## Requirements:
 
-You are given two lists:
+You are given a list:
 - `List<Transaction> transactions`.
 
 Each Transaction has
