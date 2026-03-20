@@ -13,8 +13,8 @@ public class FraudDetectorTest {
 
         List<Transaction> transactions = List.of(
                 new Transaction("t1", "user1", new BigDecimal("100"), 1000, "MX"),
-                new Transaction("t2", "user1", new BigDecimal("200"), 2000, "MX"),
                 new Transaction("t3", "user1", new BigDecimal("300"), 3000, "MX"),
+                new Transaction("t2", "user1", new BigDecimal("200"), 2000, "MX"),
                 new Transaction("t4", "user4", new BigDecimal("400"), 4000, "MX"),
                 new Transaction("t5", "user3", new BigDecimal("500"), 4000, "MX"),
                 new Transaction("t6", "user2", new BigDecimal("600"), 4000, "MX"),
