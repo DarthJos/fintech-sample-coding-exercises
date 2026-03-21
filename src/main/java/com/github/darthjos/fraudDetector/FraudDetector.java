@@ -90,7 +90,7 @@ public class FraudDetector {
         BigDecimal topLimit = new BigDecimal(10000);
         List<String> largeTransactionsList = transactions.stream()
                 .filter(t -> t.getAmount().compareTo(topLimit)>0)
-                .map(t-> t.getTransactionID().toString())
+                .map(Transaction::getTransactionID)
                 .toList();
 
         return "Large Transactions: " + largeTransactionsList;
